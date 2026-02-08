@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { v4 as uuid } from 'uuid';
+import { arrayMove } from '@dnd-kit/sortable';
 
 export const useSheetStore = create((set) => ({
   topics: JSON.parse(localStorage.getItem('codolio-data')) || [],
@@ -14,11 +15,15 @@ export const useSheetStore = create((set) => ({
       const formatted = json.data.sections.map(section => ({
         id: uuid(),
         title: section.title,
-        questions: section.questions.slice(0, 3).map(q => ({
+        subtopics: [{
           id: uuid(),
-          title: q.title,
-          url: q.url || '#'
-        }))
+          title: "Standard Problems",
+          questions: section.questions.slice(0, 3).map(q => ({
+            id: uuid(),
+            title: q.title,
+            url: q.url || '#'
+          }))
+        }]
       }));
       set({ topics: formatted, isLoading: false });
       localStorage.setItem('codolio-data', JSON.stringify(formatted));
@@ -28,52 +33,51 @@ export const useSheetStore = create((set) => ({
   },
 
   addTopic: (title) => set((state) => {
-    const newTopics = [...state.topics, { id: uuid(), title, questions: [] }];
-    localStorage.setItem('codolio-data', JSON.stringify(newTopics));
-    return { topics: newTopics };
+    const next = [...state.topics, { id: uuid(), title, subtopics: [] }];
+    localStorage.setItem('codolio-data', JSON.stringify(next));
+    return { topics: next };
   }),
 
-  // NEW: Rename Topic
+  addSubTopic: (topicId, title) => set((state) => {
+    const next = state.topics.map(t => 
+      t.id === topicId ? { ...t, subtopics: [...t.subtopics, { id: uuid(), title, questions: [] }] } : t
+    );
+    localStorage.setItem('codolio-data', JSON.stringify(next));
+    return { topics: next };
+  }),
+
+  addQuestion: (topicId, subId, title) => set((state) => {
+    const next = state.topics.map(t => {
+      if (t.id !== topicId) return t;
+      return {
+        ...t,
+        subtopics: t.subtopics.map(st => 
+          st.id === subId ? { ...st, questions: [...st.questions, { id: uuid(), title, url: '#' }] } : st
+        )
+      };
+    });
+    localStorage.setItem('codolio-data', JSON.stringify(next));
+    return { topics: next };
+  }),
+
   renameTopic: (id, newTitle) => set((state) => {
-    const newTopics = state.topics.map(t => t.id === id ? { ...t, title: newTitle } : t);
-    localStorage.setItem('codolio-data', JSON.stringify(newTopics));
-    return { topics: newTopics };
+    const next = state.topics.map(t => t.id === id ? { ...t, title: newTitle } : t);
+    localStorage.setItem('codolio-data', JSON.stringify(next));
+    return { topics: next };
   }),
 
   removeTopic: (id) => set((state) => {
-    const newTopics = state.topics.filter(t => t.id !== id);
-    localStorage.setItem('codolio-data', JSON.stringify(newTopics));
-    return { topics: newTopics };
+    const next = state.topics.filter(t => t.id !== id);
+    localStorage.setItem('codolio-data', JSON.stringify(next));
+    return { topics: next };
   }),
 
-  addQuestion: (topicId, qTitle) => set((state) => {
-    const newTopics = state.topics.map(topic => 
-      topic.id === topicId 
-        ? { ...topic, questions: [...topic.questions, { id: uuid(), title: qTitle, url: '#' }] }
-        : topic
-    );
-    localStorage.setItem('codolio-data', JSON.stringify(newTopics));
-    return { topics: newTopics };
-  }),
-
-  // NEW: Rename Question
-  renameQuestion: (topicId, qId, newTitle) => set((state) => {
-    const newTopics = state.topics.map(topic => 
-      topic.id === topicId 
-        ? { ...topic, questions: topic.questions.map(q => q.id === qId ? { ...q, title: newTitle } : q) }
-        : topic
-    );
-    localStorage.setItem('codolio-data', JSON.stringify(newTopics));
-    return { topics: newTopics };
-  }),
-
-  removeQuestion: (topicId, questionId) => set((state) => {
-    const newTopics = state.topics.map(topic => 
-      topic.id === topicId 
-        ? { ...topic, questions: topic.questions.filter(q => q.id !== questionId) }
-        : topic
-    );
-    localStorage.setItem('codolio-data', JSON.stringify(newTopics));
-    return { topics: newTopics };
+  // Drag and Drop Logic
+  reorderTopics: (activeId, overId) => set((state) => {
+    const oldIndex = state.topics.findIndex((t) => t.id === activeId);
+    const newIndex = state.topics.findIndex((t) => t.id === overId);
+    const next = arrayMove(state.topics, oldIndex, newIndex);
+    localStorage.setItem('codolio-data', JSON.stringify(next));
+    return { topics: next };
   })
 }));
