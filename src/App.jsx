@@ -13,7 +13,7 @@ function TopicCard({ topic, isExp, onToggle, store }) {
     <div ref={setNodeRef} style={style} className={`mb-4 rounded-xl border-2 transition-all ${topic.completed ? 'border-emerald-200 bg-emerald-50/10' : 'border-slate-100 bg-white shadow-sm'}`}>
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-4">
-          <div {...attributes} {...listeners} className="cursor-grab text-slate-300 hover:text-indigo-600"><GripVertical size={20} /></div>
+          <div {...attributes} {...listeners} className="cursor-grab text-slate-300 hover:text-indigo-600 transition-colors"><GripVertical size={20} /></div>
           <div className="cursor-pointer" onClick={() => onToggle(topic.id)}>
             <div className="flex items-center gap-2">
               <h2 className={`font-bold text-lg ${topic.completed ? 'text-emerald-700 line-through opacity-70' : 'text-slate-800'}`}>{topic.title}</h2>
@@ -23,8 +23,8 @@ function TopicCard({ topic, isExp, onToggle, store }) {
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={() => { const n = prompt("Rename Topic:", topic.title); if(n) store.editTopic(topic.id, n) }} className="p-2 text-slate-400 hover:text-indigo-500"><Edit3 size={16}/></button>
-          <button onClick={() => { if(confirm("Delete topic?")) store.deleteTopic(topic.id) }} className="p-2 text-slate-400 hover:text-red-500"><Trash2 size={16}/></button>
+          <button onClick={() => { const n = prompt("Rename Topic:", topic.title); if(n) store.editTopic(topic.id, n) }} className="p-2 text-slate-400 hover:text-indigo-500 transition"><Edit3 size={16}/></button>
+          <button onClick={() => { if(confirm("Delete topic?")) store.deleteTopic(topic.id) }} className="p-2 text-slate-400 hover:text-red-500 transition"><Trash2 size={16}/></button>
         </div>
       </div>
 
@@ -35,9 +35,9 @@ function TopicCard({ topic, isExp, onToggle, store }) {
               <div className="bg-slate-50 p-2 flex justify-between items-center px-4">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-black text-slate-500 uppercase flex items-center gap-1"><Hash size={12}/> {sub.title}</span>
-                  <button onClick={() => { const n = prompt("Rename Sub-topic:", sub.title); if(n) store.editSub(topic.id, sub.id, n) }} className="text-slate-300 hover:text-indigo-500"><Edit3 size={12}/></button>
+                  <button onClick={() => { const n = prompt("Rename Sub-topic:", sub.title); if(n) store.editSub(topic.id, sub.id, n) }} className="text-slate-300 hover:text-indigo-500 transition"><Edit3 size={12}/></button>
                 </div>
-                <button onClick={() => { if(confirm("Delete sub-topic?")) store.deleteSub(topic.id, sub.id) }} className="text-slate-300 hover:text-red-500"><Trash2 size={14}/></button>
+                <button onClick={() => { if(confirm("Delete sub-topic?")) store.deleteSub(topic.id, sub.id) }} className="text-slate-300 hover:text-red-500 transition"><Trash2 size={14}/></button>
               </div>
               <div className="p-2 space-y-1">
                 {sub.questions.map(q => (
@@ -48,7 +48,11 @@ function TopicCard({ topic, isExp, onToggle, store }) {
                           {q.completed ? <CheckCircle size={20} className="text-emerald-500" /> : <Circle size={20} className="text-slate-200" />}
                         </button>
                         <span className={`text-sm font-medium ${q.completed ? 'text-slate-400 line-through' : 'text-slate-700'}`}>{q.title}</span>
-                        <button onClick={() => { const n = prompt("Rename Question:", q.title); if(n) store.editQ(topic.id, sub.id, q.id, n) }} className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-indigo-500 transition-all"><Edit3 size={12}/></button>
+                        <button onClick={() => { 
+                          const n = prompt("Rename Question:", q.title); 
+                          const u = prompt("Edit URL:", q.url);
+                          if(n) store.editQ(topic.id, sub.id, q.id, n, u);
+                        }} className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-indigo-500 transition-all"><Edit3 size={12}/></button>
                       </div>
                       {q.companies && q.companies.length > 0 && (
                         <div className="flex gap-1 ml-8 mt-1 flex-wrap">
@@ -58,13 +62,24 @@ function TopicCard({ topic, isExp, onToggle, store }) {
                         </div>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100">
                       <a href={q.url} target="_blank" rel="noreferrer" className="text-slate-300 hover:text-indigo-600"><ExternalLink size={16} /></a>
-                      <button onClick={() => store.deleteQ(topic.id, sub.id, q.id)} className="text-slate-300 hover:text-red-400"><Trash2 size={14}/></button>
+                      <button onClick={() => store.deleteQ(topic.id, sub.id, q.id)} className="text-slate-300 hover:text-red-400 transition"><Trash2 size={14}/></button>
                     </div>
                   </div>
                 ))}
-                <button onClick={() => { const n = prompt("Question Name:"); if(n) store.addQ(topic.id, sub.id, n) }} className="w-full py-1 text-[10px] font-black uppercase text-indigo-400 hover:bg-indigo-50 rounded-lg transition-colors">+ Add Question</button>
+                <button 
+                  onClick={() => { 
+                    const n = prompt("Question Name:"); 
+                    if(n) {
+                      const u = prompt("Question Link (optional):", "https://");
+                      store.addQ(topic.id, sub.id, n, u);
+                    }
+                  }} 
+                  className="w-full py-1 text-[10px] font-black uppercase text-indigo-400 hover:bg-indigo-50 rounded-lg transition-colors"
+                >
+                  + Add Question
+                </button>
               </div>
             </div>
           ))}
@@ -85,7 +100,7 @@ export default function App() {
     <div className="min-h-screen bg-white text-slate-900 pb-20 px-4 font-sans">
       <div className="max-w-2xl mx-auto">
         <header className="pt-16 pb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div><h1 className="text-4xl font-black italic tracking-tighter uppercase">CODOLIO<span className="text-indigo-600">.</span></h1><p className="text-slate-400 font-bold text-[10px] tracking-[0.2em] uppercase pt-1 italic underline decoration-indigo-400">STUDENT PREP TRACKER (2ND YEAR)</p></div>
+          <div><h1 className="text-4xl font-black italic tracking-tighter uppercase">CODOLIO<span className="text-indigo-600">.</span></h1><p className="text-slate-400 font-bold text-[10px] tracking-[0.2em] uppercase pt-1 italic underline decoration-indigo-400">STUDENT PREP TRACKER</p></div>
           <button onClick={() => { const n = prompt("New Topic Name:"); if(n) store.addTopic(n) }} className="bg-indigo-600 text-white px-6 py-3 rounded-full font-bold text-sm hover:scale-105 transition-all shadow-lg flex items-center gap-2 shadow-indigo-100"><Plus size={20}/> New Topic</button>
         </header>
         <DndContext collisionDetection={closestCenter} onDragEnd={onDnd}>
