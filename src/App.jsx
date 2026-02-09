@@ -95,7 +95,7 @@ export default function App() {
           <div className="flex items-end justify-between gap-4 mb-8">
             <div>
               <h1 className="text-4xl font-black italic tracking-tighter uppercase leading-none">CODOLIO<span className="text-indigo-600">.</span></h1>
-              <p className="text-slate-400 font-bold text-[10px] tracking-[0.2em] uppercase pt-1 italic">STUDENT PREP TRACKER (2ND YEAR)</p>
+              <p className="text-slate-400 font-bold text-[10px] tracking-[0.2em] uppercase pt-1 italic">STUDENT PREP TRACKER</p>
             </div>
             <button onClick={() => store.addTopic(prompt("New Topic Name:"))} className="bg-indigo-600 text-white px-6 py-3 rounded-full font-bold text-sm hover:scale-105 transition-all shadow-lg flex items-center gap-2"><Plus size={20}/> New Topic</button>
           </div>
