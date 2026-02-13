@@ -9,7 +9,6 @@ function TopicCard({ topic, isExp, onToggle, store }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: topic.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
-  // Helper to handle safe editing
   const handleEditTopic = () => {
     const newTitle = prompt("Rename Topic:", topic.title);
     if (newTitle && newTitle.trim() !== "") {
@@ -141,7 +140,7 @@ export default function App() {
         <header className="pt-16 pb-8">
           <div className="flex items-end justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-4xl font-black italic tracking-tighter uppercase leading-none">CODOLIO<span className="text-indigo-600">.</span></h1>
+              <h1 className="text-4xl font-black italic tracking-tighter uppercase leading-none">SheetSync<span className="text-indigo-600">.</span></h1>
               <p className="text-slate-400 font-bold text-[10px] tracking-[0.2em] uppercase pt-1 italic">STUDENT PREP TRACKER</p>
             </div>
             <button 

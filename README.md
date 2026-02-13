@@ -101,4 +101,5 @@ codolio-tracker/
 
 ###  Author
 
-**Vasundhara Devi** Second Year Engineering Student
+**Vasundhara Devi** 
+Second Year Engineering Student
